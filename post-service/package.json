@@ -6,5 +6,11 @@
   "dependencies": {
     "express": "^4.17.1",
     "express-pino-logger": "^4.0.0"
+  },
+  "scripts": {
+    "start": "nodemon post-service.js"
+  },
+  "devDependencies": {
+    "nodemon": "^1.19.1"
   }
 }

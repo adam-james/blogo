@@ -1,0 +1,22 @@
+version: "2.1"
+
+services:
+  post_service:
+    image: blogo_post_service
+    build: ./post-service
+    volumes:
+      - ./post-service:/usr/src/app
+    expose:
+      - 5000
+
+  web_api:
+    image: blogo_web_api
+    build: ./web-api
+    volumes:
+      - ./web-api:/usr/src/app
+    environment:
+      POST_SERVICE_URL: http://post_service:5000
+    ports:
+      - 3000:3000
+    depends_on:
+      - post_service
