@@ -1,8 +1,7 @@
 const app = require("express")();
 const fetch = require("node-fetch");
 const pino = require("express-pino-logger")();
-const port = 3000;
-const { POST_SERVICE_URL } = process.env;
+const { PORT, POST_SERVICE_URL } = process.env;
 
 app.use(pino);
 
@@ -19,5 +18,5 @@ app.get("/posts", async (req, res) => {
   }
 });
 
-app.listen(port);
-console.log(`Listening on port ${port}.`);
+app.listen(PORT);
+console.log(`Listening on port ${PORT}.`);
