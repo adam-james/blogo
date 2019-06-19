@@ -1,5 +1,7 @@
 version: "2.1"
 
+# TODO ports as env variables
+
 services:
   post_service:
     image: blogo_post_service

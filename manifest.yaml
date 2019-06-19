@@ -1,0 +1,86 @@
+apiVersion: apps/v1beta1
+kind: Deployment
+metadata:
+  name: blogo-post-service
+spec:
+  replicas: 2
+  strategy:
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 1
+  minReadySeconds: 5
+  template:
+    metadata:
+      labels:
+        app: blogo-post-service
+    spec:
+      containers:
+        - name: blogo-post-service
+          image: blogoregistry.azurecr.io/blogo_post_service:v1
+          resources:
+            requests:
+              cpu: 250m
+            limits:
+              cpu: 500m
+          env:
+            - name: NODE_ENV
+              value: production
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: post-service
+spec:
+  # TODO How to only expose this to the cluster?
+  type: LoadBalancer
+  ports:
+    - port: 80
+      protocol: TCP
+      name: http
+      targetPort: 5000
+  selector:
+    app: blogo-post-service
+---
+apiVersion: apps/v1beta1
+kind: Deployment
+metadata:
+  name: blogo-web-api
+spec:
+  replicas: 2
+  strategy:
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 1
+  minReadySeconds: 5
+  template:
+    metadata:
+      labels:
+        app: blogo-web-api
+    spec:
+      containers:
+        - name: blogo-web-api
+          image: blogoregistry.azurecr.io/blogo_web_api:v2
+          resources:
+            requests:
+              cpu: 250m
+            limits:
+              cpu: 500m
+          env:
+            - name: NODE_ENV
+              value: production
+            - name: POST_SERVICE_URL
+              value: http://$(POST_SERVICE_SERVICE_HOST):$(POST_SERVICE_SERVICE_PORT)
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: blogo-lb
+spec:
+  type: LoadBalancer
+  ports:
+    - port: 80
+      protocol: TCP
+      name: http
+      targetPort: 3000
+  selector:
+    app: blogo-web-api
