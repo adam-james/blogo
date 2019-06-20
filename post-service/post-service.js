@@ -1,17 +1,47 @@
 const app = require("express")();
 const pino = require("express-pino-logger")();
-const { PORT } = process.env;
+const mongoose = require("mongoose");
+const { json } = require("body-parser");
+const { DATABASE_URL, PORT } = process.env;
+
+// Model
+
+const Post = mongoose.model("Post", { body: String });
+
+// Config
+
+const dbUrl = DATABASE_URL || "mongodb://localhost:27017/post-service";
+
+mongoose.connect(dbUrl, {
+  useNewUrlParser: true
+});
 
 app.use(pino);
 
-app.get("/posts", (req, res) => {
-  const posts = [
-    { id: 1, body: "hi" },
-    { id: 2, body: "bonjour" },
-    { id: 3, body: "hola" },
-    { id: 4, body: "ciao" }
-  ];
-  res.json({ posts });
+// Routes
+
+app.get("/posts", async (req, res) => {
+  try {
+    const posts = await Post.find();
+    res.json({ posts });
+  } catch (err) {
+    console.log(err);
+    res.status(500).json({ error: true });
+  }
+});
+
+app.post("/posts", json(), async (req, res) => {
+  try {
+    const {
+      post: { body }
+    } = req.body;
+    const newPost = await new Post({ body });
+    const post = await newPost.save();
+    res.status(201).json({ post });
+  } catch (err) {
+    console.log(err);
+    res.status(500).json({ error: true });
+  }
 });
 
 app.listen(PORT);

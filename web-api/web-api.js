@@ -1,6 +1,7 @@
 const app = require("express")();
 const fetch = require("node-fetch");
 const pino = require("express-pino-logger")();
+const { json } = require("body-parser");
 const { PORT, POST_SERVICE_URL } = process.env;
 
 app.use(pino);
@@ -13,6 +14,22 @@ app.get("/posts", async (req, res) => {
     res.json({ posts });
   } catch (err) {
     // TODO use pino logger
+    console.log(err);
+    res.status(500).json({ error: true });
+  }
+});
+
+app.post("/posts", json(), async (req, res) => {
+  try {
+    const url = `${POST_SERVICE_URL}/posts`;
+    const resp = await fetch(url, {
+      method: "POST",
+      body: JSON.stringify(req.body),
+      headers: { "Content-Type": "application/json" }
+    });
+    const { post } = await resp.json();
+    res.json({ post });
+  } catch (err) {
     console.log(err);
     res.status(500).json({ error: true });
   }
