@@ -1,5 +1,5 @@
 const app = require("express")();
-const pino = require("express-pino-logger")();
+const morgan = require("morgan");
 const mongoose = require("mongoose");
 const { json } = require("body-parser");
 const { DATABASE_URL, PORT } = process.env;
@@ -17,7 +17,7 @@ mongoose.connect(dbUrl, {
   useNewUrlParser: true
 });
 
-app.use(pino);
+app.use(morgan("dev"));
 
 // Routes
 

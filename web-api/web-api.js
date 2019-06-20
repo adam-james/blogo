@@ -1,10 +1,10 @@
 const app = require("express")();
 const fetch = require("node-fetch");
-const pino = require("express-pino-logger")();
+const morgan = require("morgan");
 const { json } = require("body-parser");
 const { PORT, POST_SERVICE_URL } = process.env;
 
-app.use(pino);
+app.use(morgan("dev"));
 
 app.get("/posts", async (req, res) => {
   try {
@@ -28,7 +28,7 @@ app.post("/posts", json(), async (req, res) => {
       headers: { "Content-Type": "application/json" }
     });
     const { post } = await resp.json();
-    res.json({ post });
+    res.status(201).json({ post });
   } catch (err) {
     console.log(err);
     res.status(500).json({ error: true });
