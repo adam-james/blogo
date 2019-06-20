@@ -27,7 +27,12 @@ spec:
             - name: NODE_ENV
               value: production
             - name: PORT
-              value: 5000
+              value: "5000"
+            - name: DATABASE_URL
+              valueFrom:
+                secretKeyRef:
+                  name: blogo-secrets
+                  key: post-service-db-url
 ---
 apiVersion: v1
 kind: Service
@@ -63,7 +68,7 @@ spec:
     spec:
       containers:
         - name: blogo-web-api
-          image: blogoregistry.azurecr.io/blogo_web_api:v2
+          image: blogoregistry.azurecr.io/blogo_web_api:v1
           resources:
             requests:
               cpu: 250m
@@ -73,7 +78,7 @@ spec:
             - name: NODE_ENV
               value: production
             - name: PORT
-              value: 3000
+              value: "3000"
             - name: POST_SERVICE_URL
               value: http://$(POST_SERVICE_SERVICE_HOST):$(POST_SERVICE_SERVICE_PORT)
 ---
