@@ -10,9 +10,7 @@ const Post = mongoose.model("Post", { body: String });
 
 // Config
 
-// TODO how to set dev db in docker-compose?
 const dbUrl = DATABASE_URL || "mongodb://post_service_db:27017/post-service";
-
 mongoose.connect(dbUrl, {
   useNewUrlParser: true
 });

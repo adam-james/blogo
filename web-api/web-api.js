@@ -13,7 +13,6 @@ app.get("/posts", async (req, res) => {
     const { posts } = await resp.json();
     res.json({ posts });
   } catch (err) {
-    // TODO use pino logger
     console.log(err);
     res.status(500).json({ error: true });
   }
