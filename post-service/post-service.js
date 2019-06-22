@@ -34,7 +34,7 @@ app.post("/posts", json(), async (req, res) => {
     const {
       post: { body }
     } = req.body;
-    const newPost = await new Post({ body });
+    const newPost = new Post({ body });
     const post = await newPost.save();
     res.status(201).json({ post });
   } catch (err) {
