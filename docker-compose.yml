@@ -13,8 +13,8 @@ services:
     build: ./post-service
     volumes:
       - ./post-service:/usr/src/app
-    expose:
-      - 5000
+    ports:
+      - 5000:5000
     environment:
       PORT: 5000
     depends_on:
