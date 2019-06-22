@@ -1,0 +1,19 @@
+{
+  "name": "upvote-service",
+  "version": "1.0.0",
+  "main": "index.js",
+  "license": "MIT",
+  "dependencies": {
+    "bluebird": "^3.5.5",
+    "body-parser": "^1.19.0",
+    "express": "^4.17.1",
+    "morgan": "^1.9.1",
+    "redis": "^2.8.0"
+  },
+  "devDependencies": {
+    "nodemon": "^1.19.1"
+  },
+  "scripts": {
+    "start": "nodemon upvote-service.js"
+  }
+}

@@ -20,6 +20,26 @@ services:
     depends_on:
       - post_service_db
 
+  upvote_db:
+    image: redis
+    expose:
+      - 6379
+
+  upvote_service:
+    image: blogo_upvote_service
+    build: ./upvote-service
+    volumes:
+      - ./upvote-service:/usr/src/app
+    ports:
+      - 4000:4000
+    environment:
+      PORT: 4000
+      REDIS_HOST: upvote_db
+      REDIS_PORT: 6379
+      NODE_ENV: development
+    depends_on:
+      - upvote_db
+
   web_api:
     image: blogo_web_api
     build: ./web-api
