@@ -45,7 +45,7 @@ app.post("/upvotes/:id", async (req, res) => {
     await cache.hmsetAsync(`post:${post._id}`, updated);
     await cache.zaddAsync("upvotes", updated.upvotes, post._id);
 
-    res.json({ post: updated });
+    res.status(201).json({ post: updated });
   } catch (err) {
     console.log(err);
     res.status(500).json({ error: true });
