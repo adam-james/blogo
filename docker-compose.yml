@@ -1,6 +1,11 @@
 version: "2.1"
 
 services:
+  rabbitmq:
+    image: rabbitmq
+    ports:
+      - 5672:5672
+
   post_service_db:
     image: mongo
     volumes:
@@ -19,6 +24,7 @@ services:
       PORT: 5000
     depends_on:
       - post_service_db
+      - rabbitmq
 
   upvote_db:
     image: redis
@@ -39,6 +45,7 @@ services:
       NODE_ENV: development
     depends_on:
       - upvote_db
+      - rabbitmq
 
   web_api:
     image: blogo_web_api

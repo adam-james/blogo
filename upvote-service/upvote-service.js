@@ -1,5 +1,6 @@
 const app = require("express")();
 const morgan = require("morgan");
+const amqp = require("amqplib");
 const cache = require("./cache");
 const { PORT } = process.env;
 
@@ -8,28 +9,11 @@ app.use(morgan("dev"));
 // TODO pub/sub with post-service
 // TODO 24 expirations
 
-const posts = [
-  {
-    _id: "5d0e214ed6c4b700287ddedc",
-    body: "coffee is ready!",
-    upvotes: 0
-  },
-  {
-    _id: "5d0b2d80f7ad7b006bd9d605",
-    body: "i could get used to this",
-    upvotes: 0
-  },
-  {
-    _id: "5d0b2d8bf7ad7b006bd9d606",
-    body: "just put something in the readme",
-    upvotes: 0
-  }
-];
-
-for (let post of posts) {
-  cache.hmset(`post:${post._id}`, post);
-  cache.zadd("upvotes", post.upvotes, post._id);
-}
+// Config
+const AMQP_URL = "amqp://rabbitmq";
+const EXCHANGE = "pubsub";
+const ROUTING_KEY = "posts.new";
+const QUEUE = "posts.new";
 
 app.get("/upvotes", async (req, res) => {
   try {
@@ -69,5 +53,36 @@ app.post("/upvotes/:id", async (req, res) => {
   }
 });
 
-app.listen(PORT);
-console.log(`Listening on port ${PORT}.`);
+main();
+
+async function main() {
+  try {
+    const connection = await amqp.connect(AMQP_URL);
+    const channel = await connection.createChannel();
+
+    channel.assertExchange(EXCHANGE, "topic", { durable: false });
+
+    const queue = await channel.assertQueue(QUEUE, {});
+
+    channel.bindQueue(queue.queue, EXCHANGE, ROUTING_KEY);
+
+    console.log("Waiting for messages...");
+
+    channel.consume(
+      queue.queue,
+      msg => {
+        const post = JSON.parse(msg.content.toString());
+        const upvotes = 0;
+        console.log(`Sub received message "${msg.content.toString()}"`);
+        cache.hmset(`post:${post._id}`, { ...post, upvotes });
+        cache.zadd("upvotes", upvotes, post._id);
+      },
+      { noAck: true }
+    );
+
+    app.listen(PORT);
+    console.log(`Listening on port ${PORT}.`);
+  } catch (err) {
+    throw err;
+  }
+}
