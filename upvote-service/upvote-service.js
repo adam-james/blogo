@@ -6,7 +6,6 @@ const { PORT } = process.env;
 
 app.use(morgan("dev"));
 
-// TODO pub/sub with post-service
 // TODO 24 expirations
 
 // Config
