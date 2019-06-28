@@ -1,4 +1,62 @@
-# TODO make sure this works with ports set as env variables.
+apiVersion: apps/v1beta1
+kind: Deployment
+metadata:
+  name: blogo-upvote-service
+spec:
+  replicas: 2
+  strategy:
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 1
+  minReadySeconds: 5
+  template:
+    metadata:
+      labels:
+        app: blogo-upvote-service
+    spec:
+      containers:
+        - name: blogo-upvote-service
+          image: blogoregistry.azurecr.io/blogo-upvote-service:latest
+          resources:
+            requests:
+              cpu: 250m
+            limits:
+              cpu: 500m
+          env:
+            - name: NODE_ENV
+              value: production
+            - name: PORT
+              value: "4000"
+            - name: REDIS_PORT
+              valueFrom:
+                secretKeyRef:
+                  name: blogo-secrets
+                  key: redis-port
+            - name: REDIS_HOST
+              valueFrom:
+                secretKeyRef:
+                  name: blogo-secrets
+                  key: redis-host
+            - name: REDIS_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: blogo-secrets
+                  key: redis-key
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: upvote-service
+spec:
+  type: LoadBalancer
+  ports:
+    - port: 80
+      protocol: TCP
+      name: http
+      targetPort: 4000
+  selector:
+    app: blogo-upvote-service
+---
 apiVersion: apps/v1beta1
 kind: Deployment
 metadata:
@@ -17,7 +75,7 @@ spec:
     spec:
       containers:
         - name: blogo-post-service
-          image: blogoregistry.azurecr.io/blogo_post_service:v1
+          image: blogoregistry.azurecr.io/blogo-post-service:latest
           resources:
             requests:
               cpu: 250m
@@ -49,49 +107,3 @@ spec:
       targetPort: 5000
   selector:
     app: blogo-post-service
----
-apiVersion: apps/v1beta1
-kind: Deployment
-metadata:
-  name: blogo-web-api
-spec:
-  replicas: 2
-  strategy:
-    rollingUpdate:
-      maxSurge: 1
-      maxUnavailable: 1
-  minReadySeconds: 5
-  template:
-    metadata:
-      labels:
-        app: blogo-web-api
-    spec:
-      containers:
-        - name: blogo-web-api
-          image: blogoregistry.azurecr.io/blogo_web_api:v1
-          resources:
-            requests:
-              cpu: 250m
-            limits:
-              cpu: 500m
-          env:
-            - name: NODE_ENV
-              value: production
-            - name: PORT
-              value: "3000"
-            - name: POST_SERVICE_URL
-              value: http://$(POST_SERVICE_SERVICE_HOST):$(POST_SERVICE_SERVICE_PORT)
----
-apiVersion: v1
-kind: Service
-metadata:
-  name: blogo-lb
-spec:
-  type: LoadBalancer
-  ports:
-    - port: 80
-      protocol: TCP
-      name: http
-      targetPort: 3000
-  selector:
-    app: blogo-web-api
