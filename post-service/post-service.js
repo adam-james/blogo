@@ -18,7 +18,7 @@ mongoose.connect(dbUrl, {
 
 app.use(morgan("dev"));
 
-const AMQP_URL = "amqp://rabbitmq";
+const AMQP_URL = process.env.AMQP_URL || "amqp://rabbitmq";
 const EXCHANGE = "pubsub";
 const ROUTING_KEY = "posts.new";
 
@@ -43,6 +43,8 @@ app.post("/posts", json(), async (req, res) => {
     const post = await newPost.save();
 
     // PUB/SUB stuff
+    // TODO only create one connection per server.
+    // Use the upvote service as an example.
     const connection = await amqp.connect(AMQP_URL);
     const channel = await connection.createChannel();
     channel.assertExchange(EXCHANGE, "topic", { durable: false });

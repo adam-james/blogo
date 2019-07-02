@@ -42,6 +42,11 @@ spec:
                 secretKeyRef:
                   name: blogo-secrets
                   key: redis-key
+            - name: AMQP_URL
+              valueFrom:
+                secretKeyRef:
+                  name: blogo-secrets
+                  key: amqp-url
 ---
 apiVersion: v1
 kind: Service
@@ -91,6 +96,11 @@ spec:
                 secretKeyRef:
                   name: blogo-secrets
                   key: post-service-db-url
+            - name: AMQP_URL
+              valueFrom:
+                secretKeyRef:
+                  name: blogo-secrets
+                  key: amqp-url
 ---
 apiVersion: v1
 kind: Service

@@ -15,6 +15,8 @@ acrId=$(az acr show --resource-group $GROUP --name $REGISTRY --query "id" --outp
 echo Creating role assignment...
 az role assignment create --assignee $appId --scope $acrId --role acrpull
 
+# TODO This breaks here. Maybe sleep for a few seconds to see if that fixes it.
+
 echo Creating Kubernetes cluster...
 az aks create \
     --resource-group $GROUP \

@@ -9,7 +9,7 @@ app.use(morgan("dev"));
 // TODO 24 expirations
 
 // Config
-const AMQP_URL = "amqp://rabbitmq";
+const AMQP_URL = process.env.AMQP_URL || "amqp://rabbitmq";
 const EXCHANGE = "pubsub";
 const ROUTING_KEY = "posts.new";
 const QUEUE = "posts.new";
