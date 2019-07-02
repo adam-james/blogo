@@ -2,3 +2,4 @@ node_modules
 data
 yarn-error.log
 secrets.yaml
+env.sh
